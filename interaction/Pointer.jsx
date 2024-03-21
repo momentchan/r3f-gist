@@ -3,7 +3,8 @@ import { BallCollider, RigidBody } from '@react-three/rapier'
 import { useRef } from 'react'
 import * as THREE from 'three'
 
-export default function Pointer({ vec = new THREE.Vector3(), scale = 1 }) {
+
+export default function Pointer({ scale = 1 }) {
     const camera = useThree((state) => state.camera)
 
     const ref = useRef()
