@@ -14,17 +14,24 @@ export default forwardRef(function HandTrack(props, ref) {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const [isVideo, setIsVideo] = useState(false)
-    const [showCanvas, setShowCanvas] = useState(false)
+    const [showCanvas, setShowCanvas] = useState(true)
     const [predictions, setPredictions] = useState()
 
     useImperativeHandle(ref, () => ({
         getPredictions() {
             return predictions
+        },
+
+        showCanvas(show) {
+            setShowCanvas(show)
+        },
+
+        toggleCanvas() {
+            setShowCanvas(!showCanvas)
         }
     }));
 
     useEffect(() => {
-        // Load the model.
         handTrack.load(modelParams).then((lmodel) => {
             console.log('Model loaded.');
             model = lmodel;
@@ -47,7 +54,10 @@ export default forwardRef(function HandTrack(props, ref) {
         function runDetection() {
             model.detect(videoRef.current).then((predictions) => {
                 setPredictions(predictions)
-                model.renderPredictions(predictions, canvasRef.current, canvasRef.current.getContext("2d"), videoRef.current);
+
+                if (showCanvas && canvasRef.current) {
+                    model.renderPredictions(predictions, canvasRef.current, canvasRef.current.getContext("2d"), videoRef.current);
+                }
                 requestAnimationFrame(runDetection);
             });
         }
@@ -58,12 +68,12 @@ export default forwardRef(function HandTrack(props, ref) {
 
     return <>
         <video ref={videoRef} autoPlay="autoplay" id="myvideo" style={{ display: 'none' }}></video>
-        <canvas ref={canvasRef} id="canvas" style={{
+        {showCanvas && <canvas ref={canvasRef} id="canvas" style={{
             position: 'fixed',
             bottom: 0,
             right: 0,
             width: "320px",
             height: "240px",
-        }}></canvas>
+        }}></canvas>}
     </>
 })
