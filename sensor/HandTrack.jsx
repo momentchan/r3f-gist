@@ -1,5 +1,5 @@
 import * as handTrack from 'handtrackjs'
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 
 let model = null;
 
@@ -10,10 +10,18 @@ const modelParams = {
     scoreThreshold: 0.6, // confidence threshold for predictions.
 };
 
-export default function HandTrack() {
+export default forwardRef(function HandTrack(props, ref) {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const [isVideo, setIsVideo] = useState(false)
+    const [showCanvas, setShowCanvas] = useState(false)
+    const [predictions, setPredictions] = useState()
+
+    useImperativeHandle(ref, () => ({
+        getPredictions() {
+            return predictions
+        }
+    }));
 
     useEffect(() => {
         // Load the model.
@@ -38,7 +46,7 @@ export default function HandTrack() {
 
         function runDetection() {
             model.detect(videoRef.current).then((predictions) => {
-                // console.log("Predictions: ", predictions);
+                setPredictions(predictions)
                 model.renderPredictions(predictions, canvasRef.current, canvasRef.current.getContext("2d"), videoRef.current);
                 requestAnimationFrame(runDetection);
             });
@@ -50,6 +58,12 @@ export default function HandTrack() {
 
     return <>
         <video ref={videoRef} autoPlay="autoplay" id="myvideo" style={{ display: 'none' }}></video>
-        <canvas ref={canvasRef} id="canvas" className="canvasbox"></canvas>
+        <canvas ref={canvasRef} id="canvas" style={{
+            position: 'fixed',
+            bottom: 0,
+            right: 0,
+            width: "320px",
+            height: "240px",
+        }}></canvas>
     </>
-}
+})
