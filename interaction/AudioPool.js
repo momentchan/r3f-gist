@@ -1,5 +1,3 @@
-import { MathUtils } from "three";
-
 export default class AudioPool {
     constructor(sourcesList, poolSize = 5, random = false) {
         this.sourcesList = sourcesList
@@ -37,5 +35,4 @@ export default class AudioPool {
         audio.play()
         this.id = (this.id + 1) % this.pool.length
     }
-
 }
