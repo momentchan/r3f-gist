@@ -74,6 +74,7 @@ export default forwardRef(function HandTrack(props, ref) {
             right: 0,
             width: "320px",
             height: "240px",
+            zIndex: 100,
         }}></canvas>}
     </>
 })
