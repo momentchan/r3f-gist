@@ -77,6 +77,7 @@ export function Outlines({ color = "black", opacity = 1, transparent = false, th
                 group.add(mesh)
             }
             mesh.geometry = angle ? toCreasedNormals(parent.geometry, angle) : parent.geometry
+            mesh.frustumCulled = false
             return () => {
                 if (angle) mesh.geometry.dispose()
                 group.remove(mesh)
