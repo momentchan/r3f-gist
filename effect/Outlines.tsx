@@ -1,15 +1,17 @@
 import * as THREE from "three"
 import * as React from "react"
 import { shaderMaterial } from "@react-three/drei"
-import { extend, applyProps, ReactThreeFiber } from "@react-three/fiber"
+import { extend, applyProps, ReactThreeFiber, useThree } from "@react-three/fiber"
 import { toCreasedNormals } from "three-stdlib"
 
 const OutlinesMaterial = shaderMaterial(
-    { color: new THREE.Color("black"), opacity: 1, thickness: 0.05 },
+    { color: new THREE.Color("black"), opacity: 1, thickness: 0.05, fade: 0.0 },
     `#include <common>
    #include <morphtarget_pars_vertex>
    #include <skinning_pars_vertex>
    uniform float thickness;
+   varying float vThickness;
+
    void main() {
      #if defined (USE_SKINNING)
 	   #include <beginnormal_vertex>
@@ -29,12 +31,20 @@ const OutlinesMaterial = shaderMaterial(
        transformedPosition = instanceMatrix * transformedPosition;
      #endif
      vec3 newPosition = transformedPosition.xyz + transformedNormal.xyz * thickness;
+     vec4 l = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+
      gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0); 
+     vThickness = l.z/l.w;
    }`,
     `uniform vec3 color;
    uniform float opacity;
+   uniform float fade;
+   varying float vThickness;
+
    void main(){
-     gl_FragColor = vec4(color, opacity);
+     float f = mix(0.5, 1.0, smoothstep(1.0, fade, vThickness));
+
+     gl_FragColor = vec4(color, opacity * f);
      #include <tonemapping_fragment>
      #include <${parseInt(THREE.REVISION.replace(/\D+/g, "")) >= 154 ? "colorspace_fragment" : "encodings_fragment"}>
    }`,
@@ -51,11 +61,13 @@ type OutlinesProps = JSX.IntrinsicElements["group"] & {
     thickness: number
     /** Geometry crease angle (0 === no crease), default: Math.PI */
     angle: number
+    fade: number
 }
 
-export function Outlines({ color = "black", opacity = 1, transparent = false, thickness = 0.05, angle = Math.PI, ...props }: OutlinesProps) {
+export function Outlines({ color = "black", opacity = 1, transparent = false, thickness = 0.05, angle = Math.PI, fade = 0.95, ...props }: OutlinesProps) {
     const ref = React.useRef<THREE.Group>(null!)
     const [material] = React.useState(() => new OutlinesMaterial({ side: THREE.BackSide }))
+
     React.useMemo(() => extend({ OutlinesMaterial }), [])
     React.useLayoutEffect(() => {
         const group = ref.current
@@ -88,10 +100,11 @@ export function Outlines({ color = "black", opacity = 1, transparent = false, th
     React.useLayoutEffect(() => {
         const group = ref.current
         const mesh = group.children[0] as THREE.Mesh<THREE.BufferGeometry, THREE.Material>
+
         if (mesh) {
-            applyProps(mesh.material as any, { transparent, thickness, color, opacity })
+            applyProps(mesh.material as any, { transparent, thickness, color, opacity, fade })
         }
-    }, [angle, transparent, thickness, color, opacity])
+    }, [angle, transparent, thickness, color, opacity, fade])
 
     return <group ref={ref} {...props} />
 }
