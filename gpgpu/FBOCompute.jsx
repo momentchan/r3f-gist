@@ -33,9 +33,7 @@ export default forwardRef(function FBOCompute(props, ref) {
     return (<>
         {/* Simulation goes into a FBO/Off-buffer */}
         {createPortal(
-            <mesh>
-                {/* set the simulation material */}
-                {props.children}
+            <mesh material={props.simMat}>
                 <bufferGeometry>
                     <bufferAttribute attach="attributes-position" count={positions.length / 3} array={positions} itemSize={3} />
                     <bufferAttribute attach="attributes-uv" count={uvs.length / 2} array={uvs} itemSize={2} />
