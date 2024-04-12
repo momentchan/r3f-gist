@@ -30,6 +30,19 @@ float Contrast(float In, float Contrast) {
 	float midpoint = pow(0.5, 2.2);
 	return (In - midpoint) * Contrast + midpoint;
 }
+
+mat4 eulerAnglesToRotationMatrix(vec3 angles)
+{
+    float ch = cos(angles.y); float sh = sin(angles.y); // heading
+    float ca = cos(angles.z); float sa = sin(angles.z); // attitude
+    float cb = cos(angles.x); float sb = sin(angles.x); // bank
+    // RyRxRz (Heading Bank Attitude)
+    return mat4(
+        ch * ca + sh * sb * sa,-ch * sa + sh * sb * ca, sh * cb, 0,
+        cb * sa, cb * ca,-sb, 0,-sh * ca + ch * sb * sa, sh * sa + ch * sb * ca, ch * cb, 0,
+        0, 0, 0, 1
+    );
+}
 `
 
 export default utility
