@@ -15,6 +15,10 @@ export default class GPGPU {
         return variable
     }
 
+    getVariable(name) {
+        return this.variables[name]
+    }
+
     setVariableDependencies(variable, dependencies) {
         this.gpuCompute.setVariableDependencies(this.variables[variable], dependencies.map(key => this.variables[key]))
     }
@@ -34,7 +38,7 @@ export default class GPGPU {
     setUniform(name, property, value) {
         this.getUniform(name, property).value = value
     }
-    
+
     getCurrentRenderTarget(name) {
         return this.gpuCompute.getCurrentRenderTarget(this.variables[name]).texture
     }

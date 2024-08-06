@@ -1,4 +1,12 @@
 import { useEffect } from "react";
+import * as THREE from 'three'
+
+export function getRandomVectorInsideSphere(radius) {
+    const vector = new THREE.Vector3();
+    vector.set(Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1);
+    vector.normalize().multiplyScalar(Math.random() * radius);
+    return vector;
+}
 
 export default function Utilities({ screenshot = true }) {
 
