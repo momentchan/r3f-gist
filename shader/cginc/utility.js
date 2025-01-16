@@ -1,15 +1,26 @@
 const utility = /*glsl*/ `
 
-float remap(float In, vec2 InMinMax, vec2 OutMinMax) {
-    return OutMinMax.x + (In - InMinMax.x) * (OutMinMax.y - OutMinMax.x) / (InMinMax.y - InMinMax.x);
+float remap(float value, vec2 minmaxI, vec2 minmaxO) {
+    return minmaxO.x + (value - minmaxI.x) * (minmaxO.y - minmaxO.x) / (minmaxI.y - minmaxI.x);
 }
 
-vec2 rotate2D(vec2 value, float angle)
+vec2 rotate2D(vec2 p, float angle)
 {
     float s = sin(angle);
     float c = cos(angle);
     mat2 m = mat2(c, s, -s, c);
-    return m * value;
+    return m * p;
+}
+
+vec3 rotate3D(vec3 p, vec3 axis, float angle) {
+    return mix(dot(axis, p) * axis, p, cos(angle))
+            + cross(axis, p) * sin(angle);
+}
+
+mat2 rotate2DMat(float angle) {
+    float s = sin(angle);
+    float c = cos(angle);
+    return mat2(c, -s, s, c);
 }
 
 float random2D(vec2 value)
