@@ -1,4 +1,4 @@
-const raymarching = /*glsl*/ `
+
 
 float smin(float a, float b, float k) {
     float h = max(k-abs(a-b), 0.0) / k;
@@ -24,7 +24,3 @@ float sdOctahedron(vec3 p, float s) {
 vec3 palette(float t) {
         return .5+.5*cos(6.28318*(t+vec3(.3,.416,.557)));
 }
-
-
-`
-export default raymarching;
