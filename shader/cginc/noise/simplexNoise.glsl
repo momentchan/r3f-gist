@@ -1,5 +1,3 @@
-const snoise = /*glsl*/`
-
 // Simplex 2D noise
 vec3 permute(vec3 x) { return mod(((x*44.0)+1.0)*x, 299.0); }
 
@@ -230,8 +228,3 @@ const float divisor = 1.0 / ( 2.0 * e );
 return normalize( vec3( x , y , z ) * divisor );
 
 }
-
-
-`
-
-export default snoise

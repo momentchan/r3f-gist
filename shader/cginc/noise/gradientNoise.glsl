@@ -1,5 +1,3 @@
-const gNoisie = /*glsl*/`
-
 float noise(vec2 co) {
 	vec2 seed = vec2(sin(co.x), cos(co.y));
 	return fract(sin(dot(seed, vec2(12.9898, 78.233))) * 43758.5453);
@@ -31,6 +29,3 @@ float gradientNoise(vec2 UV, float Scale) {
 vec2 scatter(vec2 uv, float radius) {
 	return -radius + vec2(gradientNoise(uv, 1000.0), gradientNoise(uv.yx, 1000.0)) * radius * 2.0;
 }
-
-`
-export default gNoisie

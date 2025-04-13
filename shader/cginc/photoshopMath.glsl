@@ -1,5 +1,3 @@
-const photoshopMath = /* glsl */ `
-
 vec3 hueShift(vec3 col, float Offset) {
     vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
     vec4 P = mix(vec4(col.bg, K.wz), vec4(col.gb, K.xy), step(col.b, col.g));
@@ -43,6 +41,3 @@ vec3 HSVShift(vec3 baseColor, vec3 shift) {
 vec3 BlendOverLay(vec3 baseColor, vec3 blendColor, float lerp) {
     return mix(baseColor, (2.0 * baseColor * blendColor), lerp);
 }
-`
-
-export default photoshopMath
