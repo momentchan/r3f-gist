@@ -28,7 +28,10 @@ export const CustomShaderMaterial = forwardRef(
         vertexShader={
           vertexShader ??
           `
+          varying vec2 vUv; // Declare varying to pass UV to fragment shader
+
           void main() {
+            vUv = uv; // Pass UV attribute to the fragment shader
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
           }
         `
@@ -37,8 +40,11 @@ export const CustomShaderMaterial = forwardRef(
           fragmentShader ??
           `
           uniform float uTime;
+          varying vec2 vUv; // Receive UV from the vertex shader
+
           void main() {
-            gl_FragColor = vec4(abs(sin(uTime)), 0.2, 1.0, 1.0);
+            vec3 color = vec3(vUv, abs(sin(uTime))); // Use UV for color
+            gl_FragColor = vec4(color, 1.0);
           }
         `
         }
