@@ -45,8 +45,8 @@ export const customTheme = {
     accent2: '#555',       // slider color
 
     highlight1: '#fff',  // title text color
-    highlight2: '#ccc',     // content text color
-    highlight3: '#888',    // folder text color
+    highlight2: '#aaa',     // content text color
+    highlight3: '#666',    // folder text color
   },
 
   borderWidths: {

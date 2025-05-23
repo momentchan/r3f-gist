@@ -19,10 +19,10 @@ float gradientNoise(vec2 p) {
 	return mix(mix(d00, d01, fp.y), mix(d10, d11, fp.y), fp.x);
 }
 
-float gradientNoise(vec2 UV, float Scale) {
-	return gradientNoise(UV * Scale) + 0.5;
+float gradientNoise01(vec2 uv) {
+	return clamp(gradientNoise(uv) * 0.707 + 0.5, 0.0, 1.0);
 }
 
 vec2 scatter(vec2 uv, float radius) {
-	return -radius + vec2(gradientNoise(uv, 1000.0), gradientNoise(uv.yx, 1000.0)) * radius * 2.0;
+	return -radius + vec2(gradientNoise01(uv * 1000.0), gradientNoise01(uv.yx * 1000.0)) * radius * 2.0;
 }

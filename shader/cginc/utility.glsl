@@ -1,3 +1,6 @@
+#ifndef UTILITY_GLSL
+#define UTILITY_GLSL
+
 float remap(float value, vec2 minmaxI, vec2 minmaxO) {
     return minmaxO.x + (value - minmaxI.x) * (minmaxO.y - minmaxO.x) / (minmaxI.y - minmaxI.x);
 }
@@ -52,3 +55,4 @@ mat4 eulerAnglesToRotationMatrix(vec3 angles)
         0, 0, 0, 1
     );
 }
+#endif
