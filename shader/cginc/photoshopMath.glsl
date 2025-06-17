@@ -1,43 +1,66 @@
-vec3 hueShift(vec3 col, float Offset) {
-    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
-    vec4 P = mix(vec4(col.bg, K.wz), vec4(col.gb, K.xy), step(col.b, col.g));
-    vec4 Q = mix(vec4(P.xyw, col.r), vec4(col.r, P.yzx), step(P.x, col.r));
-    float D = Q.x - min(Q.w, Q.y);
-    float E = 1e-10;
-    vec3 hsv = vec3(abs(Q.z + (Q.w - Q.y) / (6.0 * D + E)), D / (Q.x + E), Q.x);
+/*  photoshop_math_webgl.glsl  --  WebGL-safe (no #version) */
+#ifndef PHOTOSHOP_MATH_WEBGL
+#define PHOTOSHOP_MATH_WEBGL
 
-    float hue = hsv.x + Offset / 360.0;
-    hsv.x = (hue < 0.0) ? hue + 1.0 : (hue > 1.0) ? hue - 1.0 : hue;
+/* --------- utilities --------- */
+#ifndef saturate
+#define saturate(x) clamp(x, 0.0, 1.0)
+#endif
 
-    vec4 K2 = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-    vec3 P2 = abs(fract(hsv.xxx + K2.xyz) * 6.0 - K2.www);
-    return hsv.z * mix(K2.xxx, clamp(P2 - K2.xxx, 0.0, 1.0), hsv.y);
+/* ---------- Luma ------------ */
+float Luma(vec3 rgb){ return dot(rgb, vec3(0.2126729, 0.7151522, 0.0721750)); }
+
+/* ---------- Blend helpers (bool mix) ------------ */
+vec3 sel(vec3 a, vec3 b, bvec3 cond){ return vec3(cond.x?b.x:a.x, cond.y?b.y:a.y, cond.z?b.z:a.z); }
+
+/* ========== Multiply / Screen (最常用) ========== */
+vec3 BlendMultiply(vec3 base, vec3 blend){ return base * blend; }
+vec3 BlendScreen(vec3 base, vec3 blend){ return 1.0 - (1.0-base)*(1.0-blend); }
+
+/* ========= Overlay (用邏輯 mix 重寫) ============ */
+vec3 BlendOverlay(vec3 base, vec3 blend){
+    bvec3 lt = lessThan(base, vec3(0.5));
+    vec3 m1 = 2.0 * base * blend;
+    vec3 m2 = 1.0 - 2.0*(1.0-base)*(1.0-blend);
+    return sel(m1, m2, lt);
 }
 
-
-vec3 hsv2rgb(vec3 c) {
-    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+/* ========= SoftLight ================================= */
+float SoftMask(float b, float s){
+    return    (s < 0.5)
+           ? (2.0*b*s + b*b*(1.0-2.0*s))
+           : (sqrt(b)*(2.0*s-1.0) + 2.0*b*(1.0-s));
+}
+vec3 BlendSoftLight(vec3 base, vec3 blend){
+    return vec3( SoftMask(base.r, blend.r),
+                 SoftMask(base.g, blend.g),
+                 SoftMask(base.b, blend.b) );
 }
 
-vec3 rgb2hsv(vec3 c) {
-    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
-    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
-    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
-
-    float d = q.x - min(q.w, q.y);
-    float e = 1.0e-10;
-    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+/* ========== HardLight ================================= */
+vec3 BlendHardLight(vec3 base, vec3 blend){
+    bvec3 lt = lessThan(blend, vec3(0.5));
+    vec3 m1 = 2.0 * base * blend;
+    vec3 m2 = 1.0 - 2.0*(1.0-base)*(1.0-blend);
+    return sel(m1, m2, lt);
 }
 
-vec3 HSVShift(vec3 baseColor, vec3 shift) {
-    vec3 hsv = rgb2hsv(baseColor);
-    hsv = hsv + shift.xyz;
-    hsv.yz = clamp(hsv.yz, 0.0, 1.0);
-    return hsv2rgb(hsv);
+/* ========== Color Dodge / Burn  ====================== */
+vec3 BlendColorDodge(vec3 base, vec3 blend){
+    bvec3 white = equal(blend, vec3(1.0));
+    vec3 res = min(base / (1.0-blend), vec3(1.0));
+    return sel(res, blend, white);
+}
+vec3 BlendColorBurn(vec3 base, vec3 blend){
+    bvec3 zero = equal(blend, vec3(0.0));
+    vec3 res = 1.0 - (1.0-base) / blend;
+    return sel( max(res,vec3(0.0)), blend, zero );
 }
 
-vec3 BlendOverLay(vec3 baseColor, vec3 blendColor, float lerp) {
-    return mix(baseColor, (2.0 * baseColor * blendColor), lerp);
+/* ----  Desaturate 1-liner (有 alpha 版) ------------- */
+vec3 Desaturate(vec3 c,float f){
+    float g = dot(c, vec3(0.3,0.59,0.11));
+    return mix(c, vec3(g), f);
 }
+
+#endif   /* PHOTOSHOP_MATH_WEBGL */
