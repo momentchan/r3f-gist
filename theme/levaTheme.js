@@ -1,6 +1,6 @@
 export const customTheme = {
   sizes: {
-    rootWidth: '380px',
+    rootWidth: '400px',
     controlHeight: '32px',
     scrubberWidth: '8px',
     scrubberHeight: '8px',

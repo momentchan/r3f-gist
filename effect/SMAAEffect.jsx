@@ -17,6 +17,7 @@ export const smaaFragmentShader = /* glsl */`
   uniform vec2 resolution;
   uniform bool debugMode;
   uniform float edgeThreshold;
+  uniform float smaaBlend;
   varying vec2 vUv;
 
   // === Constants ===
@@ -41,7 +42,9 @@ export const smaaFragmentShader = /* glsl */`
 
   // === Edge Detection ===
   float detectEdge(float luma, float lumaNeighbor) {
-    return step(edgeThreshold, abs(luma - lumaNeighbor));
+      float diff = abs(luma - lumaNeighbor);
+      return smoothstep(edgeThreshold * 0.5, edgeThreshold * 1.5, diff);
+    // return step(edgeThreshold, abs(luma - lumaNeighbor));
   }
 
   // === Main Function ===
@@ -69,6 +72,7 @@ export const smaaFragmentShader = /* glsl */`
         float neighborLuma = rgb2luma(samples[i].color.rgb);
         float edge = detectEdge(centerLuma, neighborLuma);
         float weight = 1.0 - edge;
+
         
         samples[i].weight = weight;
         totalWeight += weight;
@@ -78,13 +82,15 @@ export const smaaFragmentShader = /* glsl */`
     // Normalize result
     blendedColor /= totalWeight;
 
+    vec3 debug = abs(blendedColor.rgb - center.color.rgb);
+
     // Debug visualization
     if (debugMode) {
         // Show difference between original and anti-aliased
-        gl_FragColor = vec4(abs(blendedColor.rgb - center.color.rgb) * 10.0, center.color.a);
+        gl_FragColor = vec4(debug * 10.0, center.color.a);
     } else {
         // Normal output
-        gl_FragColor = vec4(blendedColor.rgb, center.color.a);
+        gl_FragColor = vec4(mix(center.color.rgb, blendedColor.rgb, smaaBlend) , center.color.a);
     }
   }
 `
@@ -98,7 +104,8 @@ export function createSMAAMaterial(size, debugMode = false, edgeThreshold = 0.1)
       tDiffuse: { value: null },
       resolution: { value: new THREE.Vector2(size.width, size.height) },
       debugMode: { value: debugMode },
-      edgeThreshold: { value: edgeThreshold }
+      edgeThreshold: { value: edgeThreshold },
+      smaaBlend: { value: 0.5 }
     }
   })
 }
