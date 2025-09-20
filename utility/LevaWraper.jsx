@@ -3,9 +3,9 @@ import { Leva } from 'leva';
 import { customTheme } from "./levaTheme.js";
 
 
-export default function LevaWraper({ }) {
+export default function LevaWraper({ initialHidden = false }) {
 
-    const [hidden, setHidden] = useState(false);
+    const [hidden, setHidden] = useState(initialHidden);
 
     useEffect(() => {
         const handleKeyPress = (event) => {
