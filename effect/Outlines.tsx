@@ -50,7 +50,7 @@ const OutlinesMaterial = shaderMaterial(
    }`,
 )
 
-type OutlinesProps = JSX.IntrinsicElements["group"] & {
+type OutlinesProps = React.JSX.IntrinsicElements["group"] & {
     /** Outline color, default: black */
     color: ReactThreeFiber.Color
     /** Outline opacity, default: 1 */
@@ -95,7 +95,7 @@ export function Outlines({ color = "black", opacity = 1, transparent = false, th
                 group.remove(mesh)
             }
         }
-    }, [angle, ref.current?.parent?.geometry])
+    }, [angle, ref.current?.parent && 'geometry' in ref.current.parent ? ref.current.parent.geometry : null])
 
     React.useLayoutEffect(() => {
         const group = ref.current
