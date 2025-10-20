@@ -57,28 +57,22 @@ const MouseTraceFBO = forwardRef<MouseTraceFBORef, MouseTraceFBOProps>(({ showDe
 
   // FBO (using actual DPR and downsample)
   const dpr = gl.getPixelRatio();
-  const fboA = useFBO(
-    Math.floor(size.width * dpr / downsample),
-    Math.floor(size.height * dpr / downsample),
-    {
-      type: THREE.HalfFloatType,
-      format: THREE.RGBAFormat,
-      minFilter: THREE.LinearFilter,
-      magFilter: THREE.LinearFilter,
-      stencilBuffer: false,
-    }
-  );
-  const fboB = useFBO(
-    Math.floor(size.width * dpr / downsample),
-    Math.floor(size.height * dpr / downsample),
-    {
-      type: THREE.HalfFloatType,
-      format: THREE.RGBAFormat,
-      minFilter: THREE.LinearFilter,
-      magFilter: THREE.LinearFilter,
-      stencilBuffer: false,
-    }
-  );
+  const w = Math.max(1920, Math.floor(size.width * dpr / downsample));
+  const h = Math.max(1080, Math.floor(size.height * dpr / downsample));
+  const fboA = useFBO(w, h, {
+    type: THREE.HalfFloatType,
+    format: THREE.RGBAFormat,
+    minFilter: THREE.LinearFilter,
+    magFilter: THREE.LinearFilter,
+    stencilBuffer: false,
+  });
+  const fboB = useFBO(w, h, {
+    type: THREE.HalfFloatType,
+    format: THREE.RGBAFormat,
+    minFilter: THREE.LinearFilter,
+    magFilter: THREE.LinearFilter,
+    stencilBuffer: false,
+  });
   const fbos = [fboA, fboB];
 
   // Ping-pong shader (GPGPU → NoBlending)
@@ -152,8 +146,21 @@ const MouseTraceFBO = forwardRef<MouseTraceFBORef, MouseTraceFBOProps>(({ showDe
 
           vec4 mouseInput = vec4(0.0);
           if (uIsDrawing) {
-            vec2 acUV = uv; acUV.x *= uResolution.x / uResolution.y;
-            vec2 acMouse = uMousePosition; acMouse.x *= uResolution.x / uResolution.y;
+            float aspect = uResolution.x / uResolution.y;
+            vec2 acUV = uv;
+            vec2 acMouse = uMousePosition;
+            
+            // Proper aspect ratio correction for both landscape and portrait
+            if (aspect >= 1.0) {
+              // Landscape: scale x to match aspect ratio
+              acUV.x = acUV.x * aspect;
+              acMouse.x = acMouse.x * aspect;
+            } else {
+              // Portrait: scale y to match aspect ratio
+              acUV.y = acUV.y / aspect;
+              acMouse.y = acMouse.y / aspect;
+            }
+            
             float dist = distance(acUV, acMouse);
             float mouseInfluence = exp(-dist / max(uTraceSize, 1e-6)) * uMousePressure * uTraceOpacity;
             mouseInput = vec4(mouseInfluence);
@@ -169,7 +176,7 @@ const MouseTraceFBO = forwardRef<MouseTraceFBORef, MouseTraceFBOProps>(({ showDe
         uPreviousTexture: { value: null },
         uTime: { value: 0.0 },
         uDeltaTime: { value: 0.0 },
-        uResolution: { value: new THREE.Vector2(Math.floor(size.width * dpr / downsample), Math.floor(size.height * dpr / downsample)) },
+        uResolution: { value: new THREE.Vector2(w, h) },
         uDiffusion: { value: controls.diffusion },
         uFadeSpeed: { value: controls.fadeSpeed },
         uTraceColor: { value: new THREE.Color(controls.traceColor) },
@@ -185,7 +192,7 @@ const MouseTraceFBO = forwardRef<MouseTraceFBORef, MouseTraceFBOProps>(({ showDe
       depthWrite: false,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [size.width, size.height, dpr, downsample, controls.traceColor]);
+  }, [w, h, dpr, downsample, controls.traceColor]);
 
   // Off-screen scene/camera/quad (fixed once)
   const simScene = useMemo(() => new THREE.Scene(), []);
@@ -222,8 +229,8 @@ const MouseTraceFBO = forwardRef<MouseTraceFBORef, MouseTraceFBOProps>(({ showDe
   // Synchronize FBO with resolution when window resizes
   useEffect(() => {
     const nextDpr = gl.getPixelRatio();
-    const newWidth = Math.floor(size.width * nextDpr / downsample);
-    const newHeight = Math.floor(size.height * nextDpr / downsample);
+    const newWidth = Math.max(1920, Math.floor(size.width * nextDpr / downsample));
+    const newHeight = Math.max(1080, Math.floor(size.height * nextDpr / downsample));
     fboA.setSize(newWidth, newHeight);
     fboB.setSize(newWidth, newHeight);
     pingPongMaterial.uniforms.uResolution.value.set(newWidth, newHeight);
@@ -239,7 +246,7 @@ const MouseTraceFBO = forwardRef<MouseTraceFBORef, MouseTraceFBOProps>(({ showDe
     });
     gl.setRenderTarget(null);
     gl.setClearColor(prevColor, prevAlpha as any);
-  }, [gl, size.width, size.height, downsample, fboA, fboB, pingPongMaterial]);
+  }, [gl, w, h, downsample, fboA, fboB, pingPongMaterial]);
 
   // Mouse events
   useEffect(() => {
