@@ -42,7 +42,7 @@ const MouseTraceFBO = forwardRef<MouseTraceFBORef, MouseTraceFBOProps>(({ showDe
       value: 'fast',
       options: { 'Draw on Press': 'press', 'Draw Always': 'always', 'Draw when Fast': 'fast' }
     },
-    traceSize: { value: 0.02, min: 0.001, max: 0.1, step: 0.001 },
+    traceSize: { value: 0.04, min: 0.001, max: 0.1, step: 0.001 },
     traceOpacity: { value: 0.8, min: 0.0, max: 1.0, step: 0.01 },
     fadeSpeed: { value: 0.98, min: 0.8, max: 0.995, step: 0.001 },
     traceColor: { value: '#ffffff' },
