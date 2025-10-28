@@ -194,6 +194,30 @@ const MouseTraceFBO = forwardRef<MouseTraceFBORef, MouseTraceFBOProps>(({ showDe
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [w, h, dpr, downsample, controls.traceColor]);
 
+  // Cleanup FBOs on unmount
+  useEffect(() => {
+    return () => {
+      try {
+        // Dispose of both FBOs and their textures
+        fbos.forEach((fbo) => {
+          if (fbo) {
+            if (fbo.texture) {
+              fbo.texture.dispose();
+            }
+            fbo.dispose();
+          }
+        });
+
+        // Dispose of materials
+        if (pingPongMaterial) {
+          pingPongMaterial.dispose();
+        }
+      } catch (error) {
+        console.debug('MouseTraceFBO cleanup error handled');
+      }
+    };
+  }, [fboA, fboB, pingPongMaterial]);
+
   // Off-screen scene/camera/quad (fixed once)
   const simScene = useMemo(() => new THREE.Scene(), []);
   const simCamera = useMemo(() => new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1), []);
