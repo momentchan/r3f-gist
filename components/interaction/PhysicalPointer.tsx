@@ -2,36 +2,25 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { useRef } from 'react';
 import * as THREE from 'three';
 
-// Optional rapier dependency - use dynamic import to avoid bundler resolution
+// Optional rapier dependency
 let BallCollider: any, RigidBody: any, isRapierAvailable = false;
 
 // Fallback components
 const FallbackBallCollider = ({ children, ...props }: any) => <group {...props}>{children}</group>;
 const FallbackRigidBody = ({ children, ...props }: any) => <group {...props}>{children}</group>;
 
-// Set initial fallbacks
-BallCollider = FallbackBallCollider;
-RigidBody = FallbackRigidBody;
-
-// Function to dynamically load @react-three/rapier
-const tryLoadRapier = () => {
-    try {
-        // Use a computed string to prevent bundler from resolving this
-        const moduleName = '@react-three/rapier';
-        const rapier = eval(`require('${moduleName}')`);
-        BallCollider = rapier.BallCollider;
-        RigidBody = rapier.RigidBody;
-        isRapierAvailable = true;
-    } catch (error) {
-        // Expected when @react-three/rapier is not installed
-        isRapierAvailable = false;
-        BallCollider = FallbackBallCollider;
-        RigidBody = FallbackRigidBody;
-    }
-};
-
-// Try to load immediately
-tryLoadRapier();
+// Try to load @react-three/rapier
+try {
+    const { BallCollider: RapierBallCollider, RigidBody: RapierRigidBody } = require('@react-three/rapier');
+    BallCollider = RapierBallCollider;
+    RigidBody = RapierRigidBody;
+    isRapierAvailable = true;
+} catch (error) {
+    // Expected when @react-three/rapier is not installed
+    isRapierAvailable = false;
+    BallCollider = FallbackBallCollider;
+    RigidBody = FallbackRigidBody;
+}
 
 interface PhysicalPointerProps {
     /** Scale of the collision sphere */

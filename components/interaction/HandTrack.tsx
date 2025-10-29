@@ -1,25 +1,18 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 
-// Optional handtrackjs dependency - use dynamic import to avoid bundler resolution
+// Optional handtrackjs dependency
 let handTrack: any = null;
 let isHandTrackAvailable = false;
 
-// Function to dynamically load handtrackjs
-const tryLoadHandTrack = () => {
-    try {
-        // Use a computed string to prevent bundler from resolving this
-        const moduleName = ['hand', 'track', 'js'].join('');
-        handTrack = eval(`require('${moduleName}')`);
-        isHandTrackAvailable = true;
-    } catch (error) {
-        // Expected when handtrackjs is not installed
-        isHandTrackAvailable = false;
-        handTrack = null;
-    }
-};
-
-// Try to load immediately
-tryLoadHandTrack();
+// Try to load handtrackjs
+try {
+    handTrack = require('handtrackjs');
+    isHandTrackAvailable = true;
+} catch (error) {
+    // Expected when handtrackjs is not installed
+    isHandTrackAvailable = false;
+    handTrack = null;
+}
 
 let model: any = null;
 

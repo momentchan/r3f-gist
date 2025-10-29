@@ -1,21 +1,25 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useControls } from 'leva';
 
 interface AdaptiveDPRMonitorProps {
     onDPRChange?: (dpr: number) => void;
+    initialDPR?: number;
 }
 
-export const AdaptiveDPRMonitor: React.FC<AdaptiveDPRMonitorProps> = ({ onDPRChange = () => {} }) => {
+export const AdaptiveDPRMonitor: React.FC<AdaptiveDPRMonitorProps> = ({
+    onDPRChange = () => { },
+    initialDPR
+}) => {
     const { gl } = useThree();
-    
+
     // Performance monitoring refs
     const frameCountRef = useRef(0);
     const lastTimeRef = useRef(performance.now());
     const lastDPRChangeRef = useRef(0);
     const consecutiveLowFPSRef = useRef(0);
     const consecutiveHighFPSRef = useRef(0);
-    const dprRef = useRef(gl.getPixelRatio());
+    const dprRef = useRef(initialDPR ?? gl.getPixelRatio());
 
     // Adaptive DPR controls
     const perfControls = useControls('Performance', {
@@ -61,7 +65,15 @@ export const AdaptiveDPRMonitor: React.FC<AdaptiveDPRMonitorProps> = ({ onDPRCha
             consecutiveLowFPSRef.current = 0;
             consecutiveHighFPSRef.current = 0;
         }
-    }, [perfControls.targetFPS, perfControls.minDPR, perfControls.maxDPR, onDPRChange]);
+    }, [perfControls.targetFPS, perfControls.minDPR, perfControls.maxDPR, onDPRChange, gl]);
+
+    // Initialize DPR on mount
+    useEffect(() => {
+        const currentDPR = initialDPR ?? gl.getPixelRatio();
+        dprRef.current = currentDPR;
+        gl.setPixelRatio(currentDPR);
+        onDPRChange(currentDPR);
+    }, [initialDPR]);
 
     useFrame(() => {
         if (!perfControls.enableAdaptiveDRP) return;
