@@ -17,7 +17,6 @@ export const AdaptiveDPRMonitor: React.FC<AdaptiveDPRMonitorProps> = ({ onDPRCha
 
     // Adaptive DPR controls
     const perfControls = useControls('Performance', {
-        showPerf: { value: false, label: 'Show Performance Monitor' },
         enableAdaptiveDRP: { value: true, label: 'Enable Adaptive DPR' },
         targetFPS: { value: 30, min: 30, max: 60, step: 5, label: 'Target FPS' },
         minDPR: { value: 1, min: 0.25, max: 1, step: 0.25, label: 'Min DPR' },
