@@ -1,11 +1,9 @@
 'use client';
 
-import React, { useState, ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import { Canvas } from '@react-three/fiber';
 import * as THREE from 'three';
-import { Perf } from 'r3f-perf';
 import { useWebGLDetection } from './hooks/useWebGLDetection';
-import { AdaptiveDPRMonitor } from './AdaptiveDPRMonitor';
 import { WebGLErrorBoundary } from './WebGLErrorBoundary';
 import { WebGLLoadingSpinner } from './WebGLLoadingSpinner';
 
@@ -23,8 +21,6 @@ interface WebGLCanvasProps {
     errorComponent?: ReactNode;
     forceLoading?: boolean;
     forceError?: boolean;
-    enableAdaptiveDPR?: boolean;
-    enablePerformanceMonitor?: boolean;
 }
 
 export default function WebGLCanvas({
@@ -41,12 +37,9 @@ export default function WebGLCanvas({
     errorComponent,
     forceLoading = false,
     forceError = false,
-    enableAdaptiveDPR = true,
-    enablePerformanceMonitor = true,
     ...props
 }: WebGLCanvasProps) {
     const webglAvailable = useWebGLDetection();
-    const [adaptiveDPR, setAdaptiveDPR] = useState(1);
 
     // Loading state
     if (webglAvailable === null || forceLoading) {
@@ -84,7 +77,6 @@ export default function WebGLCanvas({
     // Canvas configuration
     const canvasConfig = {
         shadows,
-        dpr: enableAdaptiveDPR ? adaptiveDPR : 1,
         gl: {
             shadowMapType: THREE.PCFSoftShadowMap,
             antialias: true,
@@ -125,9 +117,7 @@ export default function WebGLCanvas({
     return (
         <WebGLErrorBoundary fallback={fallback} errorComponent={errorComponent} onError={onError}>
             <Canvas {...canvasConfig}>
-                {enableAdaptiveDPR && <AdaptiveDPRMonitor onDPRChange={setAdaptiveDPR} />}
                 {children}
-                {enablePerformanceMonitor && <Perf />}
             </Canvas>
         </WebGLErrorBoundary>
     );

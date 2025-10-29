@@ -1,19 +1,21 @@
 import React, { useRef, useCallback } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { useControls } from 'leva';
 
 interface AdaptiveDPRMonitorProps {
-    onDPRChange: (dpr: number) => void;
+    onDPRChange?: (dpr: number) => void;
 }
 
-export const AdaptiveDPRMonitor: React.FC<AdaptiveDPRMonitorProps> = ({ onDPRChange }) => {
+export const AdaptiveDPRMonitor: React.FC<AdaptiveDPRMonitorProps> = ({ onDPRChange = () => {} }) => {
+    const { gl } = useThree();
+    
     // Performance monitoring refs
     const frameCountRef = useRef(0);
     const lastTimeRef = useRef(performance.now());
     const lastDPRChangeRef = useRef(0);
     const consecutiveLowFPSRef = useRef(0);
     const consecutiveHighFPSRef = useRef(0);
-    const dprRef = useRef(1);
+    const dprRef = useRef(gl.getPixelRatio());
 
     // Adaptive DPR controls
     const perfControls = useControls('Performance', {
@@ -29,6 +31,7 @@ export const AdaptiveDPRMonitor: React.FC<AdaptiveDPRMonitorProps> = ({ onDPRCha
 
         if (timeSinceLastChange < 3000) return; // Cooldown period
 
+
         if (fps < perfControls.targetFPS - 5) {
             // Performance is poor, reduce DPR
             consecutiveLowFPSRef.current++;
@@ -37,6 +40,7 @@ export const AdaptiveDPRMonitor: React.FC<AdaptiveDPRMonitorProps> = ({ onDPRCha
             if (consecutiveLowFPSRef.current >= 1 && dprRef.current > perfControls.minDPR) {
                 const newDPR = Math.max(perfControls.minDPR, dprRef.current - 0.25);
                 dprRef.current = newDPR;
+                gl.setPixelRatio(newDPR);
                 onDPRChange(newDPR);
                 lastDPRChangeRef.current = currentTime;
             }
@@ -48,6 +52,7 @@ export const AdaptiveDPRMonitor: React.FC<AdaptiveDPRMonitorProps> = ({ onDPRCha
             if (consecutiveHighFPSRef.current >= 2 && dprRef.current < perfControls.maxDPR) {
                 const newDPR = Math.min(perfControls.maxDPR, dprRef.current + 0.25);
                 dprRef.current = newDPR;
+                gl.setPixelRatio(newDPR);
                 onDPRChange(newDPR);
                 lastDPRChangeRef.current = currentTime;
             }
