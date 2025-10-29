@@ -19,7 +19,9 @@ interface CustomShaderMaterialProps {
     [key: string]: any;
 }
 
-interface ShaderMaterialRef extends THREE.ShaderMaterial { }
+interface ShaderMaterialRef extends THREE.ShaderMaterial {
+    updateUniforms?: (uniforms: Record<string, any>) => void;
+}
 
 /* --------------------------------------------------------- */
 /* Default shaders — basic UV coloring + time-based tint    */

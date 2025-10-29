@@ -7,18 +7,26 @@ import { EffectPass } from "postprocessing";
 
 // Optional realism-effects dependency
 let VelocityDepthNormalPass: any, SSGIEffect: any, TRAAEffect: any, isRealismEffectsAvailable = false;
+
+// Fallback components
+const FallbackComponent = ({ children, ...props }: any) => <group {...props}>{children}</group>;
+FallbackComponent.displayName = 'FallbackVelocityDepthNormalPass';
+
+// Initialize with fallbacks
+VelocityDepthNormalPass = FallbackComponent;
+SSGIEffect = class SSGIEffectFallback { constructor() { } };
+TRAAEffect = class TRAAEffectFallback { constructor() { } };
+
+// Try to load realism-effects if available
 try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const realismEffects = require('realism-effects');
     VelocityDepthNormalPass = realismEffects.VelocityDepthNormalPass;
     SSGIEffect = realismEffects.SSGIEffect;
     TRAAEffect = realismEffects.TRAAEffect;
     isRealismEffectsAvailable = true;
-} catch (error) {
+} catch {
     console.warn('RealisticEffect: realism-effects not found. SSGI effects will be disabled.');
-    // Fallback components
-    VelocityDepthNormalPass = ({ children, ...props }: any) => <group {...props}>{children}</group>;
-    SSGIEffect = class { constructor() { } };
-    TRAAEffect = class { constructor() { } };
 }
 
 interface RealisticEffectProps {

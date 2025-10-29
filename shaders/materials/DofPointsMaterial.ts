@@ -6,6 +6,7 @@ interface DofPointsMaterialUniforms {
     uFocus: { value: number };
     uFov: { value: number };
     uBlur: { value: number };
+    [uniform: string]: { value: any };
 }
 
 interface DofPointsMaterialOptions {

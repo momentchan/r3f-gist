@@ -47,8 +47,8 @@ export default class CustomEffectBase extends Effect {
             fragmentShader || defaultFragmentShader,
             {
                 uniforms: new Map([...baseUniforms, ...childUniforms]),
-                defines,
-                vertexShader,
+                defines: new Map(Object.entries(defines)),
+                vertexShader: vertexShader || undefined,
                 ...otherOptions
             }
         );

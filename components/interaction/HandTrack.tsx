@@ -31,7 +31,8 @@ const modelParams = {
 };
 
 interface HandTrackProps {
-    // Add any props you might need in the future
+    onPrediction?: (predictions: any[]) => void;
+    enabled?: boolean;
 }
 
 export interface HandTrackRef {

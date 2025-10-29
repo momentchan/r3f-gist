@@ -1,6 +1,8 @@
 // Note: For now, include the GLSL as strings. In a build system, these could be imported as raw text.
 // You can replace these with actual file imports if your bundler supports ?raw imports
 
+import * as THREE from 'three';
+
 const fractalGLSL = `
 // Placeholder - include actual fractal.glsl content here
 // This should be replaced with the actual GLSL content from cginc/noise/fractal.glsl
