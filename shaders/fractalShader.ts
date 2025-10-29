@@ -42,7 +42,7 @@ interface FractalShaderUniforms {
  * 
  * @example
  * ```typescript
- * import { fractalShader } from '@lib/r3f-gist/shader';
+ * import { fractalShader } from '@/packages/r3f-gist/shaders';
  * 
  * const material = new THREE.ShaderMaterial(fractalShader);
  * material.uniforms.uSpeed.value = 0.1;

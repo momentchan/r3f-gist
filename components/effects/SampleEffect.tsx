@@ -4,7 +4,7 @@ import CustomEffectBase from "./CustomEffectBase";
  * Usage:
  * 
  * import { EffectComposer } from '@react-three/postprocessing';
- * import { SampleEffect } from '@lib/r3f-gist/components/effects';
+ * import { SampleEffect } from '@/packages/r3f-gist/components/effects';
  * 
  * // Inside your R3F <Canvas>:
  * <EffectComposer>
@@ -45,3 +45,5 @@ export default function SampleEffect(props: SampleEffectProps) {
 
     return <primitive object={effect} {...props} />;
 }
+
+

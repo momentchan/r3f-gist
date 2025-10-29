@@ -6,7 +6,7 @@
  * 
  * @example
  * ```typescript
- * import { CustomShaderMaterial, fractalShader } from '@lib/r3f-gist/shader';
+ * import { CustomShaderMaterial, fractalShader } from '@/packages/r3f-gist/shaders';
  * 
  * // Use React component
  * <CustomShaderMaterial fragmentShader={myShader} />

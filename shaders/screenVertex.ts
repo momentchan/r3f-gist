@@ -6,7 +6,7 @@
  * 
  * @example
  * ```typescript
- * import { screenVertex } from '@lib/r3f-gist/shader';
+ * import { screenVertex } from '@/packages/r3f-gist/shaders';
  * 
  * const material = new THREE.ShaderMaterial({
  *   vertexShader: screenVertex,
@@ -24,3 +24,5 @@ export const screenVertex = /* glsl */`
 `;
 
 export default screenVertex;
+
+
