@@ -8,3 +8,6 @@ export { default as LevaWrapper } from './ui/LevaWrapper';
 
 // Safe interaction components (no external dependencies)
 export { default as MouseTrace } from './interaction/MouseTrace';
+
+// Utility components
+export * from './utility';
