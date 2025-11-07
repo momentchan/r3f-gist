@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ComponentProps } from 'react';
 import { Leva } from 'leva';
 
-interface LevaWrapperProps {
+interface LevaWrapperProps extends Omit<ComponentProps<typeof Leva>, 'hidden'> {
     initialHidden?: boolean;
 }
 
-export default function LevaWrapper({ initialHidden = false }: LevaWrapperProps) {
+export default function LevaWrapper({ initialHidden = false, ...props }: LevaWrapperProps) {
 
     const [hidden, setHidden] = useState(initialHidden);
 
@@ -23,7 +23,7 @@ export default function LevaWrapper({ initialHidden = false }: LevaWrapperProps)
     }, []);
 
     return (
-        <Leva theme={customTheme as any} hidden={hidden} />
+        <Leva theme={customTheme as any} hidden={hidden} {...props} />
     )
 }
 
