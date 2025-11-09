@@ -49,4 +49,11 @@ mat4 eulerAnglesToRotationMatrix(vec3 angles) {
     // RyRxRz (Heading Bank Attitude)
     return mat4(ch * ca + sh * sb * sa, -ch * sa + sh * sb * ca, sh * cb, 0, cb * sa, cb * ca, -sb, 0, -sh * ca + ch * sb * sa, sh * sa + ch * sb * ca, ch * cb, 0, 0, 0, 0, 1);
 }
+
+
+float backout(float progress, float swing) {
+    float p = progress - 1.0;
+    return (p * p * ((swing + 1.0) * p + swing) + 1.0);
+}
+
 #endif
