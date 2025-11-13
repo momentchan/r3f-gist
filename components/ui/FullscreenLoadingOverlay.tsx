@@ -1,4 +1,4 @@
-import { type CSSProperties, type ReactNode, useEffect, useRef } from 'react';
+import { type CSSProperties, type ReactNode, useEffect, useState } from 'react';
 
 interface FullscreenLoadingOverlayProps {
   isLoaded: boolean;
@@ -23,16 +23,16 @@ export default function FullscreenLoadingOverlay({
   style,
   children
 }: FullscreenLoadingOverlayProps) {
-  const hasCompletedRef = useRef(false);
+  const [hasCompleted, setHasCompleted] = useState(false);
 
   useEffect(() => {
     if (isLoaded) {
-      hasCompletedRef.current = true;
+      setHasCompleted(true);
     }
   }, [isLoaded]);
 
-  const resolvedOpacity = hasCompletedRef.current ? 0 : 1;
-  const resolvedPointerEvents = hasCompletedRef.current ? 'none' : 'auto';
+  const resolvedOpacity = hasCompleted ? 0 : 1;
+  const resolvedPointerEvents = hasCompleted ? 'none' : 'auto';
 
   const overlayStyle: CSSProperties = {
     position: 'fixed',
@@ -58,5 +58,3 @@ export default function FullscreenLoadingOverlay({
     </div>
   );
 }
-
-
